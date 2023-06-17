@@ -145,6 +145,9 @@ class RecogUtilities:
 
 ####################### TOOLKIT CAMERA CONTROL #########################
 ## Service call: rosservice call /recog_utilities/turn_camera_srv "camera_name: 'front_camera'"
+## CON PEPPER:
+## rosservice call /recog_utilities/turn_camera_srv 'front_camera' 'enable' 14 10
+## Parameters: "camera_name: 'front_camera'" "enable: 'enable'" "resolution: 14" "fps: 10"
 
     def callback_turn_camera_srv(self, req):
         print(consoleFormatter.format("\nRequested turn camera service", "WARNING"))
