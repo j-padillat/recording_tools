@@ -1,0 +1,4 @@
+<launch>
+  <node name="record_video" pkg="recording_tools" type="record_video.py" output="screen"/>
+  <node name="record_audio" pkg="recording_tools" type="record_audio.py" output="screen"/>
+</launch>

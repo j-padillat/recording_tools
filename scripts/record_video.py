@@ -69,13 +69,13 @@ class RecogUtilities:
         # Run in local or pepper
         self.RosOn = False
         try:
-            availableServices = rosservice.get_service_list()
+            self.availableServices = rosservice.get_service_list()
             self.RosOn = True
         except:
             self.RosOn = False
         
         # Run with pepper
-        if self.RosOn and '/robot_toolkit/vision_tools_srv' in availableServices:
+        if self.RosOn and '/robot_toolkit/vision_tools_srv' in self.availableServices:
             rospy.init_node('recog_utilities')
             print(consoleFormatter.format('RUNNING RECOGNITION WITH PEPPER', 'OKGREEN'))
             
@@ -91,8 +91,8 @@ class RecogUtilities:
         else:
             print(consoleFormatter.format('RUNNING RECOGNITION IN PC', 'OKGREEN'))
             # Init ROS
-            roscore = subprocess.Popen('roscore')
-            time.sleep(1)
+            # roscore = subprocess.Popen('roscore')
+            # time.sleep(1)
             # Init node
             rospy.init_node('recog_utilities')
             self.frontCameraRawSubscriber = rospy.Subscriber('/camera/image_raw', Image, self.callback_local_camera_subscriber)
@@ -151,7 +151,8 @@ class RecogUtilities:
 
     def callback_turn_camera_srv(self, req):
         print(consoleFormatter.format("\nRequested turn camera service", "WARNING"))
-        if self.RosOn:
+        print(self.RosOn)
+        if self.RosOn and '/robot_toolkit/vision_tools_srv' in self.availableServices:
             if req.camera_name in [self.FRONT_CAMERA, self.BOTTOM_CAMERA, self.CAMERA_DEPTH]:
                 vision_request = vision_tools_msg()
                 vision_request.camera_name = req.camera_name
