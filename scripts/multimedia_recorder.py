@@ -50,7 +50,7 @@ class ConsoleFormatter:
         return(self.colors[format]+text+self.colors["ENDC"])
 
 
-class image_converter:
+class multimedia_recorder:
 
   def __init__(self, segundos=8):
     self.seconds = segundos
@@ -83,8 +83,8 @@ class image_converter:
     self.actual_time = time.time()
     if (self.actual_time - self.tiempo_inicial <= self.seconds):
       ### --- RECORD AUDIO LOCAL
-      if self.counter == 0:
-        self.threadAudio.start()
+      # if self.counter == 0:
+      #   self.threadAudio.start()
       ### ---
       self.counter +=1
       try:
@@ -116,7 +116,7 @@ class image_converter:
   def callback_pepper(self,msg):
     self.actual_time = time.time()
     if (self.actual_time - self.tiempo_inicial <= self.seconds):
-      ### --- RECORD AUDIO LOCAL
+      ### --- RECORD AUDIO PEPPER
       if self.counter == 0:
         self.saveAudioServiceClient(self.seconds)
       ### ---
@@ -165,10 +165,10 @@ class image_converter:
 def main(args):
   if len(args) > 1:
     segundos = int(args[1])
-    image_converter(segundos)
+    multimedia_recorder(segundos)
   else:
-    image_converter()
-  rospy.init_node('image_converter', anonymous=True)
+    multimedia_recorder()
+  rospy.init_node('multimedia_recorder', anonymous=True)
   try:
     rospy.spin()
   except KeyboardInterrupt:

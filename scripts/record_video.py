@@ -199,7 +199,7 @@ if __name__ == '__main__':
     consoleFormatter=ConsoleFormatter()
     recogUtilities = RecogUtilities()
     if not recogUtilities.RosOn:
-        print(consoleFormatter.format(" --- LOCAL perception_utilities node initialized --- ", "OKGREEN"))
+        print(consoleFormatter.format(" --- LOCAL record_audio/video nodes initialized --- ", "OKGREEN"))
     else:
-        print(consoleFormatter.format(" --- PEPPER perception_utilities node initialized --- ", "OKGREEN"))
+        print(consoleFormatter.format(" --- record_audio/video nodes node initialized --- ", "OKGREEN"))
     rospy.spin()

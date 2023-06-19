@@ -163,7 +163,7 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/record_video.py
   scripts/record_audio.py
-  scripts/img_subs.py
+  scripts/multimedia_recorder.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
