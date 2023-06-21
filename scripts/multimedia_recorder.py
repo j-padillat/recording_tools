@@ -57,18 +57,20 @@ class multimedia_recorder:
     self.RosOn = False
     try:
       availableTopics = rostopic.get_topic_list()
-      availableServices = rosservice.get_service_list()
+      self.availableServices = rosservice.get_service_list()
       self.RosOn = True
     except:
       self.RosOn = False
-
     self.bridge = CvBridge()
-    if self.RosOn and '/robot_toolkit_node/camera/front/image_raw/compressed' in availableTopics[-1][-1] and 'record_audio/save_audio_srv' in availableServices:
+    if self.RosOn and '/record_audio/save_audio_srv' in self.availableServices:
       self.image_sub = rospy.Subscriber("/robot_toolkit_node/camera/front/image_raw/compressed", CompressedImage, self.callback_pepper)
       print(consoleFormatter.format("Waiting for save audio service", "WARNING"))
-      rospy.wait_for_service('record_audio/save_audio_srv')
+      rospy.wait_for_service('/record_audio/save_audio_srv')
       print(consoleFormatter.format("save audio service connected!", "OKGREEN"))
-      self.saveAudioServiceClient = rospy.ServiceProxy('record_audio/save_audio_srv', saveAudio_srv)
+      self.saveAudioServiceClient = rospy.ServiceProxy('/record_audio/save_audio_srv', saveAudio_srv)
+      self.talkSpeechServiceClient = rospy.ServiceProxy('record_audio/talk_speech_srv', talk_speech_srv)
+      self.talkSpeechServiceClient('You can talk to me now', 1, 'English')
+      self.threadAudio = threading.Thread(target=self.audio_local_recording, args=(self.seconds,))
     else:
       self.image_sub = rospy.Subscriber("/camera/image_raw", Image, self.callback_local)
       self.threadAudio = threading.Thread(target=self.audio_local_recording, args=(self.seconds,))
@@ -104,7 +106,7 @@ class multimedia_recorder:
       self.hora_string = time.strftime("%H:%M:%S", self.hora)
       self.hora_string = self.hora_string.replace(':','_')
   
-      out = cv2.VideoWriter(self.PATH_VIDEOS+'video_{}.avi'.format(self.hora_string),cv2.VideoWriter_fourcc(*'MJPG'), 10, self.size)
+      out = cv2.VideoWriter(self.PATH_VIDEOS+'video_{}.avi'.format(self.hora_string),cv2.VideoWriter_fourcc(*'DIVX'), 10, self.size)
 
       for i in range(len(self.img_array)):
         out.write(self.img_array[i])
@@ -118,7 +120,7 @@ class multimedia_recorder:
     if (self.actual_time - self.tiempo_inicial <= self.seconds):
       ### --- RECORD AUDIO PEPPER
       if self.counter == 0:
-        self.saveAudioServiceClient(self.seconds)
+        self.threadAudio.start()
       ### ---
       self.counter +=1
       try:
@@ -139,27 +141,32 @@ class multimedia_recorder:
       self.hora_string = time.strftime("%H:%M:%S", self.hora)
       self.hora_string = self.hora_string.replace(':','_')
   
-      out = cv2.VideoWriter(self.PATH_VIDEOS+'video_{}.avi'.format(self.hora_string),cv2.VideoWriter_fourcc(*'MJPG'), 10, self.size)
+      out = cv2.VideoWriter(self.PATH_VIDEOS+'video.avi',cv2.VideoWriter_fourcc(*'MJPG'), 10, self.size)
 
       for i in range(len(self.img_array)):
         out.write(self.img_array[i])
       out.release()
+
+  def audio_local_recording(self, seconds):
+
+    if self.RosOn and '/record_audio/save_audio_srv' in self.availableServices:
+      self.saveAudioServiceClient(self.seconds)
       reason = "Termino la grabacion, numero de frames: {}".format(self.counter)
       print(reason)
       rospy.signal_shutdown(reason)
+    else:
+      fs = 44100  # Sample rate
+      myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=1)
+      sd.wait()  # Wait until recording is finished
+      # For the file name
+      self.hora = time.localtime()
+      self.hora_string = time.strftime("%H:%M:%S", self.hora)
+      self.hora_string = self.hora_string.replace(':','_')
 
-  def audio_local_recording(self, seconds):
-    fs = 44100  # Sample rate
-    myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=1)
-    sd.wait()  # Wait until recording is finished
-    # For the file name
-    self.hora = time.localtime()
-    self.hora_string = time.strftime("%H:%M:%S", self.hora)
-    self.hora_string = self.hora_string.replace(':','_')
+      # Constants
+      self.PATH_AUDIO = self.PATH_AUDIOS + 'audio.wav'
+      write(self.PATH_AUDIO, fs, myrecording)  # Save as WAV file 
 
-    # Constants
-    self.PATH_AUDIO = self.PATH_AUDIOS + 'audio_{}.wav'.format(self.hora_string)
-    write(self.PATH_AUDIO, fs, myrecording)  # Save as WAV file 
 
 
 def main(args):
@@ -177,4 +184,5 @@ def main(args):
 
 if __name__ == '__main__':
     consoleFormatter=ConsoleFormatter()
+    print(consoleFormatter.format(" --- multimedia_recorder node initialized --- ", "OKGREEN"))
     main(sys.argv)

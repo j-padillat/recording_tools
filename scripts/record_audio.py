@@ -80,9 +80,10 @@ class RecordAudio:
 
         # Constants
         self.PATH_RECORDING_TOOLS = rospkg.RosPack().get_path('recording_tools')
-        self.PATH_AUDIO = self.PATH_RECORDING_TOOLS+'/resources/audios/audio_{}.wav'.format(self.hora_string)
+        self.PATH_AUDIO = self.PATH_RECORDING_TOOLS+'/resources/audios/audio.wav'
         self.SAMPLE_RATE=16000
         self.audioBuffer = []
+        
         self.ready=False
         self.isTalking = False
 
@@ -199,7 +200,6 @@ class RecordAudio:
         """
         Callback for the microphone subcriber of the robot
         """
-
         if self.ready==True:
             audio = data.data
             self.audioBuffer = list(self.audioBuffer)
