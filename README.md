@@ -1,6 +1,6 @@
 # recording_tools
 * A simple package for recording audio and video from local pc or the robot pepper.
-* ROS Packages needes: **perception_msgs**, **robot_toolkit_msgs**
+* ROS Packages needed: **perception_msgs**, **robot_toolkit_msgs**, **audio_common_msgs**, **naoqi_bridge_msgs**, **speech_utilities_msgs**
 
 If running from local:
 * roslaunch recording_tools recording_tools.launch
